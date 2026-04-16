@@ -1,0 +1,32 @@
+[
+    {
+        "kategorie": "Elektronika",
+        "hodnota_x": 18000,
+        "hodnota_y": 4
+    },
+    {
+        "kategorie": "Elektronika",
+        "hodnota_x": 9500,
+        "hodnota_y": 10
+    },
+    {
+        "kategorie": "Obleceni",
+        "hodnota_x": 1500,
+        "hodnota_y": 30
+    },
+    {
+        "kategorie": "Potraviny",
+        "hodnota_x": 50,
+        "hodnota_y": 500
+    },
+    {
+        "kategorie": "Potraviny",
+        "hodnota_x": 300,
+        "hodnota_y": 90
+    },
+    {
+        "kategorie": "Knihy",
+        "hodnota_x": 450,
+        "hodnota_y": 25
+    }
+]
