@@ -6,9 +6,6 @@ from tkinter import ttk, messagebox, filedialog
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-# ==========================================
-# 1. TŘÍDA: Datový model 
-# ==========================================
 class DataModel:
     def __init__(self, db_name="analytika.db"):
         self.__db_name = db_name
@@ -50,9 +47,6 @@ class DataModel:
             conn.cursor().execute("DELETE FROM dataset")
             conn.commit()
 
-# ==========================================
-# 2. TŘÍDA: Analytické jádro 
-# ==========================================
 class DataAnalyzer:
     def __init__(self, data):
         self.__data = data
@@ -79,13 +73,10 @@ class DataAnalyzer:
                     serazeno[j], serazeno[j + 1] = serazeno[j + 1], serazeno[j]
         return serazeno
 
-# ==========================================
-# 3. TŘÍDA: GUI 
-# ==========================================
 class DataDashboardApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("DataAnalyzer Studio Pro")
+        self.root.title("Data analyzer")
         self.root.geometry("1100x750")
         
         self.db = DataModel()
@@ -99,16 +90,15 @@ class DataDashboardApp:
         self.notebook.pack(fill="both", expand=True)
 
         self.tab_data = ttk.Frame(self.notebook)
-        self.notebook.add(self.tab_data, text=" 🗃️ Správce Dat ")
+        self.notebook.add(self.tab_data, text="  Správce Dat ")
 
         self.tab_dash = ttk.Frame(self.notebook)
-        self.notebook.add(self.tab_dash, text=" 📊 Dashboard & Vizualizace ")
+        self.notebook.add(self.tab_dash, text="  Dashboard & Vizualizace ")
 
         self.sestav_tab_data()
         self.sestav_tab_dash()
         self.obnov_tabulku()
 
-    # --- ZÁLOŽKA 1: SPRÁVCE DAT ---
     def sestav_tab_data(self):
         toolbar = tk.Frame(self.tab_data, bg="#34495e", pady=10, padx=10)
         toolbar.pack(fill="x")
@@ -128,7 +118,7 @@ class DataDashboardApp:
         btn_export["menu"] = menu_export
         btn_export.pack(side="left", padx=5)
 
-        tk.Button(toolbar, text="🗑️ Vymazat vše", command=self.vymaz_vse, bg="#e74c3c", fg="white").pack(side="right", padx=5)
+        tk.Button(toolbar, text=" Vymazat vše", command=self.vymaz_vse, bg="#e74c3c", fg="white").pack(side="right", padx=5)
 
         main_content = tk.Frame(self.tab_data)
         main_content.pack(fill="both", expand=True, padx=10, pady=10)
@@ -148,9 +138,9 @@ class DataDashboardApp:
         self.ent_y = ttk.Entry(form_frame)
         self.ent_y.pack(fill="x", pady=(0, 15))
 
-        tk.Button(form_frame, text="➕ Přidat", bg="#2ecc71", fg="white", command=self.pridej).pack(fill="x", pady=2)
-        tk.Button(form_frame, text="✏️ Upravit", bg="#3498db", fg="white", command=self.uprav).pack(fill="x", pady=2)
-        tk.Button(form_frame, text="❌ Smazat", bg="#e74c3c", fg="white", command=self.smaz).pack(fill="x", pady=2)
+        tk.Button(form_frame, text=" Přidat", bg="#2ecc71", fg="white", command=self.pridej).pack(fill="x", pady=2)
+        tk.Button(form_frame, text=" Upravit", bg="#3498db", fg="white", command=self.uprav).pack(fill="x", pady=2)
+        tk.Button(form_frame, text=" Smazat", bg="#e74c3c", fg="white", command=self.smaz).pack(fill="x", pady=2)
         
         tk.Label(form_frame, text="Algoritmus řazení:", pady=10).pack()
         tk.Button(form_frame, text="Seřadit podle X", command=lambda: self.aplikuj_razeni(2)).pack(fill="x", pady=2)
@@ -164,7 +154,6 @@ class DataDashboardApp:
         self.tree.pack(side="right", fill="both", expand=True)
         self.tree.bind('<ButtonRelease-1>', self.vyber_zaznam)
 
-    # --- ZÁLOŽKA 2: DASHBOARD ---
     def sestav_tab_dash(self):
         stats_frame = tk.Frame(self.tab_dash, width=250, bg="#2c3e50")
         stats_frame.pack(side="left", fill="y")
@@ -203,7 +192,6 @@ class DataDashboardApp:
         self.canvas = FigureCanvasTkAgg(self.figure, self.canvas_frame)
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
 
-    # --- LOGIKA APLIKACE 
     def obnov_tabulku(self, data=None):
         for r in self.tree.get_children(): self.tree.delete(r)
         dataset = data if data else self.db.nacti_data()
@@ -273,7 +261,6 @@ class DataDashboardApp:
             with open(cesta, 'r', encoding='utf-8') as f:
                 ctenar = csv.DictReader(f) 
                 for r in ctenar:
-                    # Mapování na sloupce: Kategorie, HodnotaX, HodnotaY
                     self.db.pridej_zaznam(r['Kategorie'], r['HodnotaX'], r['HodnotaY'])
             self.obnov_tabulku()
             messagebox.showinfo("OK", "CSV nahráno úspěšně.")
@@ -287,7 +274,6 @@ class DataDashboardApp:
             with open(cesta, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 for r in data:
-                    # Mapování na klíče z testovacího JSONu
                     self.db.pridej_zaznam(
                         r.get('kategorie', 'Neznámá'), 
                         r.get('hodnota_x', 0), 
@@ -319,7 +305,6 @@ class DataDashboardApp:
             messagebox.showinfo("OK", "Úspěšně exportováno do JSON.")
         except Exception as e: messagebox.showerror("Chyba", str(e))
 
-    # --- DASHBOARD A VIZUALIZACE ---
     def obnov_dashboard(self):
         data = self.db.nacti_data()
         stats = DataAnalyzer(data).get_statistiky()
@@ -341,9 +326,9 @@ class DataDashboardApp:
         data = self.db.nacti_data()
         self.ax.clear()
         
-        if hasattr(self, 'cb') and self.cb:
-            self.cb.remove()
-            self.cb = None
+        if hasattr(self, 'colorbar') and self.colorbar:
+            self.colorbar.remove()
+            self.colorbar = None
         
         if not data:
             self.ax.text(0.5, 0.5, "Žádná data k zobrazení", ha='center', va='center')
@@ -396,6 +381,7 @@ class DataDashboardApp:
             self.ax.pie(list(agregace.values()), labels=list(agregace.keys()), autopct='%1.1f%%', startangle=90)
             self.ax.set_title("Pie chart")
             
+        self.canvas.draw()
     
 if __name__ == "__main__":
     root = tk.Tk()
