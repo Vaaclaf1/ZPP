@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # ==========================================
-# 1. TŘÍDA: Datový model (Databáze a Soubory)
+# 1. TŘÍDA: Datový model 
 # ==========================================
 class DataModel:
     def __init__(self, db_name="analytika.db"):
@@ -51,7 +51,7 @@ class DataModel:
             conn.commit()
 
 # ==========================================
-# 2. TŘÍDA: Analytické jádro (Algoritmy a Statistiky)
+# 2. TŘÍDA: Analytické jádro 
 # ==========================================
 class DataAnalyzer:
     def __init__(self, data):
@@ -80,7 +80,7 @@ class DataAnalyzer:
         return serazeno
 
 # ==========================================
-# 3. TŘÍDA: Profesionální GUI (Záložky a embedded grafy)
+# 3. TŘÍDA: GUI 
 # ==========================================
 class DataDashboardApp:
     def __init__(self, root):
@@ -113,7 +113,7 @@ class DataDashboardApp:
         toolbar = tk.Frame(self.tab_data, bg="#34495e", pady=10, padx=10)
         toolbar.pack(fill="x")
         
-        # PŘEPRACOVÁNO: Skutečná rozbalovací tlačítka (Menubutton)
+        
         btn_import = ttk.Menubutton(toolbar, text="📥 Import Dat")
         menu_import = tk.Menu(btn_import, tearoff=0)
         menu_import.add_command(label="Z CSV souboru", command=self.import_csv)
@@ -188,9 +188,7 @@ class DataDashboardApp:
             "Line chart (Trend)",
             "Area chart (Plošný graf X vs Y)",
             "Pie chart (Podíl Y)",
-            "Heat map (2D Histogram X vs Y)",
-            "Histogram (Rozložení Y)",
-            "Box plot (Krabicový graf Y)"
+
         ]
         self.combo_graf = ttk.Combobox(graph_ctrl_frame, values=seznam_grafu, state="readonly", width=40)
         self.combo_graf.set(seznam_grafu[0])
@@ -205,7 +203,7 @@ class DataDashboardApp:
         self.canvas = FigureCanvasTkAgg(self.figure, self.canvas_frame)
         self.canvas.get_tk_widget().pack(fill="both", expand=True)
 
-    # --- LOGIKA APLIKACE (CRUD) ---
+    # --- LOGIKA APLIKACE 
     def obnov_tabulku(self, data=None):
         for r in self.tree.get_children(): self.tree.delete(r)
         dataset = data if data else self.db.nacti_data()
@@ -268,14 +266,12 @@ class DataDashboardApp:
             self.db.vycisti_databazi()
             self.obnov_tabulku()
 
-    # --- SOUBORY: KONKRÉTNÍ FUNKCE ---
-   # --- SOUBORY: OPRAVENÉ FUNKCE ---
     def import_csv(self):
         cesta = filedialog.askopenfilename(filetypes=[("CSV", "*.csv")])
         if not cesta: return
         try:
             with open(cesta, 'r', encoding='utf-8') as f:
-                ctenar = csv.DictReader(f) # Použijeme DictReader pro spolehlivost
+                ctenar = csv.DictReader(f) 
                 for r in ctenar:
                     # Mapování na sloupce: Kategorie, HodnotaX, HodnotaY
                     self.db.pridej_zaznam(r['Kategorie'], r['HodnotaX'], r['HodnotaY'])
@@ -400,33 +396,7 @@ class DataDashboardApp:
             self.ax.pie(list(agregace.values()), labels=list(agregace.keys()), autopct='%1.1f%%', startangle=90)
             self.ax.set_title("Pie chart")
             
-        elif typ == "Heat map (2D Histogram X vs Y)":
-            x = [r[2] for r in data]
-            y = [r[3] for r in data]
-            if len(x) > 2:
-                h = self.ax.hist2d(x, y, bins=10, cmap='YlOrRd')
-                self.cb = self.figure.colorbar(h[3], ax=self.ax)
-                self.ax.set_xlabel("Hodnota X")
-                self.ax.set_ylabel("Hodnota Y")
-                self.ax.set_title("Heat map (Hustota bodů)")
-            else:
-                self.ax.text(0.5, 0.5, "Málo dat pro Heat mapu (přidejte více bodů)", ha='center', va='center')
-
-        elif typ == "Histogram (Rozložení Y)":
-            y = [r[3] for r in data]
-            self.ax.hist(y, bins='auto', color='#1abc9c', alpha=0.7, edgecolor='black')
-            self.ax.set_title("Histogram")
-            
-        elif typ == "Box plot (Krabicový graf Y)":
-            y = [r[3] for r in data]
-            self.ax.boxplot(y, vert=False, patch_artist=True, boxprops=dict(facecolor='#f1c40f'))
-            self.ax.set_title("Box plot")
-            self.ax.set_yticks([])
-
-        self.ax.grid(True, linestyle='--', alpha=0.3)
-        self.figure.tight_layout()
-        self.canvas.draw()
-
+    
 if __name__ == "__main__":
     root = tk.Tk()
     app = DataDashboardApp(root)
